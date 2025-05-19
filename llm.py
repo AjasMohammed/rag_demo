@@ -1,18 +1,17 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables.base import Runnable
 from langchain_core.messages import BaseMessage
 
-class LLM:
+class ChatLLM:
     """
     A class to interact with a language model for generating AI responses based on user queries
     and relevant documents.
     """
-    def __init__(self, model, api_key=None, history=False):
+    def __init__(self, model, history=False):
         """
-        Initialize the LLM with model details, API key, and chat history preference.
+        Initialize the LLM with model instance, and chat history preference.
         """
-        self.llm = ChatGoogleGenerativeAI(model=model, api_key=api_key)
+        self.llm = model
         self.__history = history
         self.__inital_prompt = [
             ("system", (

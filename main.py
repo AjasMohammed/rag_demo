@@ -12,13 +12,14 @@ The responses are generated using the Gemini language model.
 from decouple import config
 
 # import the database functions
-from db import fetch_courses
+from db import RAGPGClient
 
 # import the language model
-from llm import LLM
+from llm import ChatLLM
 
 # import the Qdrant database functions
 from q_drant import QdrantDB
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 def main():
@@ -26,16 +27,38 @@ def main():
     Main entry point for the script.
     """
     # set up the Qdrant database
-    google_api = config("GOOGLE_API_KEY")
+    llm_api_key = config("LLM_API_KEY")
     collection_name = "knowledge_base"
     qdb = QdrantDB(collection_name)
-    llm = LLM(model="gemini-2.0-flash", api_key=google_api)
+    db_client = RAGPGClient(
+        host=config("DB_HOST"),
+        database=config("DB_NAME"),
+        user=config("DB_USER"),
+        password=config("DB_PASSWORD"),
+        port=config("DB_PORT"),
+    )
+    model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", api_key=llm_api_key)
+    llm = ChatLLM(model=model)
 
     # create the collection if it doesn't exist
     collection_created = qdb.create_collections()
     if collection_created:
         # fetch the course data from the database
-        course_dict = fetch_courses()
+        course_dict: list[dict] = db_client.fetch_named_data("""
+            SELECT
+                course.id,
+                course.name,
+                course.slug,
+                course.about,
+                course.tags,
+                core_institute.name as institute
+            FROM
+                core_course as course
+            INNER JOIN
+                core_institute
+            ON
+                core_institute.id = course.institute_id
+        """)
         # embed the course data into vectors
         texts = [f"{course['name']} {course['about']}" for course in course_dict]
         embeddings = list(qdb.embed_texts(texts))
