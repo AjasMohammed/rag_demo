@@ -1,0 +1,12 @@
+[project]
+name = "langchain_tutorial"
+version = "0.1.0"
+description = "This project is created to learn and test Langchain"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain[google-genai]>=0.3.25",
+    "psycopg2>=2.9.10",
+    "python-decouple>=3.8",
+    "qdrant-client[fastembed]>=1.14.1",
+]
