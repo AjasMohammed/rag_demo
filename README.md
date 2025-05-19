@@ -5,7 +5,7 @@ This is a minimal setup for demonstrating Retrieval-Augmented Generation (RAG) u
 ## Requirements
 
 ```bash
-pip install qdrant-client fastembed
+pip install qdrant-client fastembed langchain
 ```
 
 ## Run Qdrant (Docker)
